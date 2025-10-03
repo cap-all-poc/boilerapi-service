@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fastapi-app"
+version = "0.1.0"
+description = "Simple FastAPI app with health and value endpoints"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{ name = "Youssef H" }]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: Other/Proprietary License",
+  "Operating System :: OS Independent",
+  "Framework :: FastAPI",
+]
+dependencies = [
+  "fastapi==0.110.2",
+  "pydantic==2.7.1",
+  "uvicorn[standard]==0.29.0",
+  "gunicorn==22.0.0"
+]
+
+
+[tool.setuptools]
+packages = ["app"]

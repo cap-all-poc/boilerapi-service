@@ -38,7 +38,7 @@ sudo /opt/fastapi-service/.venv/bin/pip install --upgrade pip
 
 # Install the FastAPI service from GitHub or package repository
 ```bash
-sudo /opt/fastapi-service/.venv/bin/pip install https://github.com/ucef-h/fastapi/releases/download/v1.0.5/fastapi_service-1.0.5-py3-none-any.whl
+sudo /opt/fastapi-service/.venv/bin/pip install https://github.com/ucef-h/fastapi/releases/download/v1.0.5/fastapi_app-1.0.5-py3-none-any.whl
 ``` 
 
 

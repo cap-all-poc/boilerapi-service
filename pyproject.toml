@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "fastapi-app"
-version = "0.1.0"
+version = "1.0.5"
 description = "Simple FastAPI app with health and value endpoints"
 readme = "README.md"
 requires-python = ">=3.10"

@@ -1,0 +1,25 @@
+[Unit]
+Description=FastAPI application (Gunicorn + Uvicorn workers)
+After=network.target
+
+[Service]
+Type=simple
+User=fastapi
+Group=fastapi
+WorkingDirectory=/opt/fastapi-service
+
+# If using a virtualenv, replace /usr/local/bin/gunicorn with: /opt/fastapi-service/.venv/bin/gunicorn
+ExecStart=/usr/local/bin/gunicorn \
+    -k uvicorn.workers.UvicornWorker \
+    -w 2 \
+    -b 0.0.0.0:8080 \
+    app.main:app
+
+Restart=always
+RestartSec=3
+TimeoutStopSec=30
+KillSignal=SIGINT
+SyslogIdentifier=fastapi-app
+
+[Install]
+WantedBy=multi-user.target

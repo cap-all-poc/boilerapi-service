@@ -1,10 +1,16 @@
 [build-system]
-requires = ["setuptools>=69", "wheel"]
+requires = [
+    "setuptools>=80",
+    "setuptools-scm[simple]>=8",
+    "wheel"
+]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "fastapi-app"
-version = "1.0.5"
+
+dynamic = ["version"]
+
 description = "Simple FastAPI app with health and value endpoints"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -19,7 +25,7 @@ dependencies = [
   "fastapi==0.110.2",
   "pydantic==2.7.1",
   "uvicorn[standard]==0.29.0",
-  "gunicorn==22.0.0"
+  "gunicorn==22.0.0",
 ]
 
 

@@ -47,7 +47,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.REPO_DOCKER_TOKEN }}
+          password: ${{ secrets.GITHUB_TOKEN  }}
 
       # Build the image again and push it with the tag that matches the release.
       # Using the release tag (e.g. v1.0.6) ensures the Docker image version

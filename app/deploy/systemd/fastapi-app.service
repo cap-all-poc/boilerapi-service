@@ -12,10 +12,8 @@ WorkingDirectory=/opt/boilerapi-service
 
 #+ If using a virtualenv, replace /usr/local/bin/gunicorn with: /opt/boilerapi-service/.venv/bin/gunicorn
 ExecStart=/usr/local/bin/gunicorn \
-    -k uvicorn.workers.UvicornWorker \
-    -w 2 \
-    -b 0.0.0.0:8080 \
-    app.main:app
+  -c python:app.gunicorn_conf \
+  app.main:app
 
 Restart=always
 RestartSec=3

@@ -26,8 +26,6 @@ COPY app ./app
 # binds to port 8080, so we do the same here.
 EXPOSE 8080
 
-# Use Gunicorn with Uvicorn workers to run the BoilerAPI application.  The number
-# of workers can be adjusted via the `-w` option; two workers is a sane default
-# for small deployments.  The binding address `0.0.0.0:8080` makes the service
-# available to other containers or the host.
-CMD ["gunicorn", "-k", "uvicorn.workers.UvicornWorker", "-w", "2", "-b", "0.0.0.0:8080", "app.main:app"]
+
+# Default command — everything tunable via ENV
+CMD ["gunicorn", "-c", "python:app.gunicorn_conf", "app.main:app"]

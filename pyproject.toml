@@ -28,6 +28,11 @@ dependencies = [
   "gunicorn==22.0.0",
 ]
 
+[project.scripts]
+boilerapi-install-systemd = "app.tools.systemd:main
 
 [tool.setuptools]
 packages = ["app"]
+
+[tool.setuptools.package-data]
+app = ["deploy/systemd/boilerapi-service.service"]

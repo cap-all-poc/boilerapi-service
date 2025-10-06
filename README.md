@@ -14,21 +14,19 @@ uvicorn app.main:app --host 0.0.0.0 --port 8080
 # Install Docker 
 
 ## To pull a specific version (recommended for stable deployments):
-```
+```bash
 docker pull ghcr.io/cap-all-poc/boilerapi-service:v1.0.1
 ```
 
 ## Run the Container on particular version:
-```
+```bash
 docker run -d -p 8080:8080 ghcr.io/cap-all-poc/boilerapi-service:v1.0.1
 ```
 
 ## The  service will now be accessible at:
+```bash
+curl http://localhost:8080
 ```
-http://localhost:8080
-```
-
-
 
 # Install systemd
 
@@ -51,42 +49,28 @@ sudo yum install -y python3 python3-venv git
 
 ## Create virtual environment under the application directory
 ```bash
-sudo python3 -m venv /opt/boilerapi-service/.venv
-sudo /opt/boilerapi-service/.venv/bin/pip install --upgrade pip
+sudo -u boilerapi python3 -m venv /opt/boilerapi-service/.venv
+sudo -u boilerapi /opt/boilerapi-service/.venv/bin/pip install --upgrade pip
 ```
 
 # Install the BoilerApi service from GitHub or package repository
 ```bash
-sudo /opt/boilerapi-service/.venv/bin/pip install https://github.com/cap-all-poc/boilerapi-service/releases/download/v1.0.1/boilerapi_service-1.0.1-py3-none-any.whl
+sudo -u boilerapi /opt/boilerapi-service/.venv/bin/pip install https://github.com/cap-all-poc/boilerapi-service/releases/download/v1.0.1/boilerapi_service-1.0.1-py3-none-any.whl
 ```
 
 
-## Copy the unit file to systemd’s directory
+## Install and enable the systemd service
 ```bash
-sudo cp /opt/boilerapi-service/deploy/systemd/boilerapi-service.service /etc/systemd/system/boilerapi-service.service
-```
-
-## Adjust permissions
-```bash
-sudo chmod 644 /etc/systemd/system/boilerapi-service.service
-```
-
-## Reload systemd to detect the new service
-```bash
-sudo systemctl daemon-reload
-``` 
-
-## Enable automatic startup at boot
-```bash
-sudo systemctl enable boilerapi-service
-```
-
-## Start the service immediately
-```bash
-sudo systemctl start boilerapi-service
+sudo /opt/boilerapi-service/.venv/bin/boilerapi-install-systemd
 ```
 
 ## Verify status (should show active)
 ```bash
 sudo systemctl status boilerapi-service --no-pager
+```
+
+## Restart or stop when needed
+```bash
+sudo systemctl restart boilerapi-service
+sudo systemctl stop boilerapi-service
 ```

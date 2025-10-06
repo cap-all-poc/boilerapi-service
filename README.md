@@ -1,4 +1,4 @@
-# boilerapi-app
+# boilerapi-service
 
 Simple BoilerApi service exposing:
 - `GET /api/v1/value`
@@ -44,12 +44,12 @@ sudo /opt/boilerapi-service/.venv/bin/pip install https://github.com/ucef-h/boil
 
 ## Copy the unit file to systemd’s directory
 ```bash
-sudo cp /opt/boilerapi-service/deploy/systemd/boilerapi-app.service /etc/systemd/system/boilerapi-app.service
+sudo cp /opt/boilerapi-service/deploy/systemd/boilerapi-service.service /etc/systemd/system/boilerapi-service.service
 ```
 
 ## Adjust permissions
 ```bash
-sudo chmod 644 /etc/systemd/system/boilerapi-app.service
+sudo chmod 644 /etc/systemd/system/boilerapi-service.service
 ```
 
 ## Reload systemd to detect the new service
@@ -59,15 +59,15 @@ sudo systemctl daemon-reload
 
 ## Enable automatic startup at boot
 ```bash
-sudo systemctl enable boilerapi-app
+sudo systemctl enable boilerapi-service
 ```
 
 ## Start the service immediately
 ```bash
-sudo systemctl start boilerapi-app
+sudo systemctl start boilerapi-service
 ```
 
 ## Verify status (should show active)
 ```bash
-sudo systemctl status boilerapi-app --no-pager
+sudo systemctl status boilerapi-service --no-pager
 ```

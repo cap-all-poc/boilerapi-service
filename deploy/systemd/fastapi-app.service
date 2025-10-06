@@ -1,6 +1,6 @@
 
 [Unit]
-Description=BoilerApi application (Gunicorn + Uvicorn workers)
+Description=BoilerApi service (Gunicorn + Uvicorn workers)
 After=network.target
 
 [Service]
@@ -21,7 +21,7 @@ Restart=always
 RestartSec=3
 TimeoutStopSec=30
 KillSignal=SIGINT
-SyslogIdentifier=boilerapi-app
+SyslogIdentifier=boilerapi-service
 
 [Install]
 WantedBy=multi-user.target

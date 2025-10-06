@@ -7,11 +7,11 @@ requires = [
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "boilerapi-app"
+name = "boilerapi-service"
 
 dynamic = ["version"]
 
-description = "Boiler app"
+description = "Boiler Service"
 readme = "README.md"
 requires-python = ">=3.10"
 authors = [{ name = "Youssef H" }]

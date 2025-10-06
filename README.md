@@ -11,6 +11,25 @@ Simple BoilerApi service exposing:
 uvicorn app.main:app --host 0.0.0.0 --port 8080
 ```
 
+# Install Docker 
+
+## To pull a specific version (recommended for stable deployments):
+```
+docker pull ghcr.io/cap-all-poc/boilerapi-service:v1.0.1
+```
+
+## Run the Container on particular version:
+```
+docker run -d -p 8080:8080 ghcr.io/cap-all-poc/boilerapi-service:v1.0.1
+```
+
+## The  service will now be accessible at:
+```
+http://localhost:8080
+```
+
+
+
 # Install systemd
 
 ## Create a dedicated system account for the BoilerApi service
@@ -38,7 +57,7 @@ sudo /opt/boilerapi-service/.venv/bin/pip install --upgrade pip
 
 # Install the BoilerApi service from GitHub or package repository
 ```bash
-sudo /opt/boilerapi-service/.venv/bin/pip install https://github.com/ucef-h/boilerapi/releases/download/v1.0.5/boilerapi_app-1.0.5-py3-none-any.whl
+sudo /opt/boilerapi-service/.venv/bin/pip install https://github.com/cap-all-poc/boilerapi-service/releases/download/v1.0.1/boilerapi_service-1.0.1-py3-none-any.whl
 ```
 
 

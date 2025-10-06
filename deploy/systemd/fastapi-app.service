@@ -1,14 +1,16 @@
+
 [Unit]
-Description=FastAPI application (Gunicorn + Uvicorn workers)
+Description=BoilerApi application (Gunicorn + Uvicorn workers)
 After=network.target
 
 [Service]
-Type=simple
-User=fastapi
-Group=fastapi
-WorkingDirectory=/opt/fastapi-service
 
-# If using a virtualenv, replace /usr/local/bin/gunicorn with: /opt/fastapi-service/.venv/bin/gunicorn
+Type=simple
+User=boilerapi
+Group=boilerapi
+WorkingDirectory=/opt/boilerapi-service
+
+#+ If using a virtualenv, replace /usr/local/bin/gunicorn with: /opt/boilerapi-service/.venv/bin/gunicorn
 ExecStart=/usr/local/bin/gunicorn \
     -k uvicorn.workers.UvicornWorker \
     -w 2 \
@@ -19,7 +21,7 @@ Restart=always
 RestartSec=3
 TimeoutStopSec=30
 KillSignal=SIGINT
-SyslogIdentifier=fastapi-app
+SyslogIdentifier=boilerapi-app
 
 [Install]
 WantedBy=multi-user.target

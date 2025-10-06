@@ -44,8 +44,8 @@ coverage.xml
 *.env
 
 # Systemd and deployment samples
-fastapi-app.service.sample
-fastapi-app.env.sample
+boilerapi-app.service.sample
+boilerapi-app.env.sample
 
 # OS files
 .DS_Store

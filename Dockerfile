@@ -18,15 +18,15 @@ COPY requirements.txt requirements-prod.txt ./
 RUN pip install --upgrade pip \
     && pip install --no-cache-dir -r requirements-prod.txt
 
-# Copy the application code into the container image.  This includes the FastAPI
+# Copy the application code into the container image.  This includes the BoilerAPI
 # application code and supporting files.
 COPY app ./app
 
-# Expose the port that the FastAPI application will listen on.  The systemd unit
+# Expose the port that the BoilerAPI application will listen on.  The systemd unit
 # binds to port 8080, so we do the same here.
 EXPOSE 8080
 
-# Use Gunicorn with Uvicorn workers to run the FastAPI application.  The number
+# Use Gunicorn with Uvicorn workers to run the BoilerAPI application.  The number
 # of workers can be adjusted via the `-w` option; two workers is a sane default
 # for small deployments.  The binding address `0.0.0.0:8080` makes the service
 # available to other containers or the host.

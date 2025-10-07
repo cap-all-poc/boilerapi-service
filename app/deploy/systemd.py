@@ -1,4 +1,4 @@
-# app/tools/systemd.py
+# app/deploy/systemd.py
 import os, sys, subprocess
 from importlib.resources import files
 

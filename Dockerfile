@@ -1,5 +1,5 @@
 # Use a lightweight Python image as base.
-FROM python:3.11-slim
+FROM python:3.13-slim
 
 # Avoid buffering Python output (makes logs show up straight away) and disable writing .pyc files.
 ENV PYTHONUNBUFFERED=1 \

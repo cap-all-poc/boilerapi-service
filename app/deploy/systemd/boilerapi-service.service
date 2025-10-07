@@ -10,8 +10,8 @@ User=boilerapi
 Group=boilerapi
 WorkingDirectory=/opt/boilerapi-service
 
-#+ If using a virtualenv, replace /usr/local/bin/gunicorn with: /opt/boilerapi-service/.venv/bin/gunicorn
-ExecStart=/usr/local/bin/gunicorn \
+#+ If using a virtualenv, replace /usr/local/bin/gunicorn with: 
+ExecStart=/opt/boilerapi-service/.venv/bin/gunicorn \
   -c python:app.gunicorn_conf \
   app.main:app
 

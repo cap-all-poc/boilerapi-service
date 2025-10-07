@@ -74,3 +74,28 @@ sudo systemctl status boilerapi-service --no-pager
 sudo systemctl restart boilerapi-service
 sudo systemctl stop boilerapi-service
 ```
+
+## Show Logs
+```bash
+sudo journalctl -u boilerapi-service -f
+```
+
+
+# Un-Install systemd
+
+## Stop the service
+```bash
+sudo systemctl disable --now boilerapi-service
+```
+
+## Remove the Systemd Unit File
+```bash
+sudo rm -f /etc/systemd/system/boilerapi-service.service
+sudo systemctl daemon-reload
+```
+
+## Remove the installed module from the virtual environment
+```bash
+sudo -u boilerapi /opt/boilerapi-service/.venv/bin/pip uninstall -y boilerapi-service
+```
+

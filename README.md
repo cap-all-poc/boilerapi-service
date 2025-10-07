@@ -55,7 +55,7 @@ sudo -u boilerapi /opt/boilerapi-service/.venv/bin/pip install --upgrade pip
 
 # Install the BoilerApi service from GitHub or package repository
 ```bash
-sudo -u boilerapi /opt/boilerapi-service/.venv/bin/pip install https://github.com/cap-all-poc/boilerapi-service/releases/download/v1.0.5/boilerapi_service-1.0.5-py3-none-any.whl
+sudo -u boilerapi /opt/boilerapi-service/.venv/bin/pip install https://github.com/cap-all-poc/boilerapi-service/releases/download/v1.0.6/boilerapi_service-1.0.6-py3-none-any.whl
 ```
 
 

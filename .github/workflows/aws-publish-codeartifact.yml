@@ -21,8 +21,8 @@ jobs:
       - name: Configure AWS credentials via OIDC
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/codeartifact-publish-role
-          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/codeartifact-publish-role
+          aws-region: ${{ vars.AWS_REGION }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -39,9 +39,9 @@ jobs:
           python -m pip install twine
           aws codeartifact login \
             --tool twine \
-            --domain "${{ env.CA_DOMAIN }}" \
-            --domain-owner "${{ env.AWS_ACCOUNT_ID }}" \
-            --repository "${{ env.CA_REPO }}"
+            --domain "${{ vars.CA_DOMAIN }}" \
+            --domain-owner "${{ vars.AWS_ACCOUNT_ID }}" \
+            --repository "${{ vars.CA_REPO }}"
 
       - name: Publish to CodeArtifact
         run: |

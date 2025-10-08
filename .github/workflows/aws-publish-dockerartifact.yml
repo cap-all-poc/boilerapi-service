@@ -1,0 +1,38 @@
+name: Push image to ECR
+
+on:
+  push:
+    tags:
+      - "v*"   # push on version tags
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: ${{ vars.AWS_REGION }}
+  ECR_ACCOUNT_ID: ${{ vars.ECR_ACCOUNT_ID }}
+  ECR_REPO: ${{ vars.ECR_REPO }}
+
+jobs:
+  push-image:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS creds via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ env.ECR_ACCOUNT_ID }}:role/<YOUR_ECR_PUSH_ROLE>
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build & push (Tag = git tag)
+        run: |
+          REGISTRY=${ECR_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
+          IMAGE=${REGISTRY}/${ECR_REPO}:${GITHUB_REF_NAME}
+          docker build -t "${IMAGE}" .
+          docker push "${IMAGE}"

@@ -67,7 +67,7 @@ cat > oidc-trust-policy.json <<EOF
                     "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
                 },
                 "StringLike": {
-                    "token.actions.githubusercontent.com:sub": "repo:cap-all-poc/immutable-bakery-iac:*"
+                    "token.actions.githubusercontent.com:sub": "repo:<REPO-OWNER>/<REPO-NAME>:*"
                 }
             }
         }

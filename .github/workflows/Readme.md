@@ -59,7 +59,7 @@ cat > oidc-trust-policy.json <<EOF
         {
             "Effect": "Allow",
             "Principal": {
-                "Federated": "arn:aws:iam::390685732327:oidc-provider/token.actions.githubusercontent.com"
+                "Federated": "arn:aws:iam::<ACCOUNTID>:oidc-provider/token.actions.githubusercontent.com"
             },
             "Action": "sts:AssumeRoleWithWebIdentity",
             "Condition": {

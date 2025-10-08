@@ -1,0 +1,167 @@
+name: Build Golden AMI
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build-ami:
+    name: Build and Publish AMI
+    runs-on: ubuntu-latest
+    environment: development
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/golden-ami-builder-role
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Install packer and jq
+        uses: hashicorp/setup-packer@v3
+        with:
+          version: '1.11.2'
+      - name: Ensure jq is present
+        run: |
+          if ! command -v jq >/dev/null 2>&1; then
+            sudo apt-get update -y
+            sudo apt-get install -y jq
+          fi
+
+      - name: Get CodeArtifact auth token
+        id: codeartifact-auth
+        shell: bash
+        run: |
+          TOKEN=$(aws codeartifact get-authorization-token \
+            --domain "${{ vars.CODEARTIFACT_DOMAIN }}" \
+            --domain-owner "${{ vars.AWS_ACCOUNT_ID }}" \
+            --query authorizationToken --output text)
+
+          # Mask it so it won't show in logs
+          echo "::add-mask::$TOKEN"
+
+          # Make available to subsequent steps
+          echo "CODEARTIFACT_AUTH_TOKEN=$TOKEN" >> "$GITHUB_ENV"
+
+      # Use authenticated index URL directly
+      - name: (Optional) Install Python package from CodeArtifact
+        shell: bash
+        run: |
+          python3 -m venv venv
+          source venv/bin/activate
+          pip install --upgrade pip
+          pip install --index-url "https://aws:${CODEARTIFACT_AUTH_TOKEN}@${{ vars.CODEARTIFACT_DOMAIN }}-${{ vars.AWS_ACCOUNT_ID }}.d.codeartifact.${{ vars.AWS_REGION }}.amazonaws.com/pypi/${{ vars.CODEARTIFACT_REPO }}/simple/" \
+            "${{ vars.CODEARTIFACT_PACKAGE }}"
+
+      - name: Packer init
+        run: packer init .
+
+      
+      - name: Validate Packer template
+        run: |
+          packer fmt -check -diff .
+          packer validate \
+            -var "aws_region=${{ vars.AWS_REGION }}" \
+            -var "base_ami=${{ vars.BASE_AMI }}" \
+            -var "version_tag=${{ github.ref_name }}" \
+            -var "CODEARTIFACT_DOMAIN=${{ vars.CODEARTIFACT_DOMAIN }}" \
+            -var "CODEARTIFACT_OWNER=${{ vars.AWS_ACCOUNT_ID }}" \
+            -var "CODEARTIFACT_REGION=${{ vars.AWS_REGION }}" \
+            -var "CODEARTIFACT_REPO=${{ vars.CODEARTIFACT_REPO }}" \
+            -var "CODEARTIFACT_PACKAGE=${{ vars.CODEARTIFACT_PACKAGE }}" \
+            -var "CODEARTIFACT_TOKEN=${{ env.CODEARTIFACT_AUTH_TOKEN }}" \
+            golden-ami.pkr.hcl
+
+      - name: Build AMI with Packer
+        env:
+          CODEARTIFACT_AUTH_TOKEN: ${{ env.CODEARTIFACT_AUTH_TOKEN }}
+          PACKER_LOG: "1"
+          PACKER_LOG_PATH: ${{ runner.temp }}/packer.log
+        timeout-minutes: 180
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          trap 'echo "::error::Packer failed. Last 200 lines of log:"; tail -n 200 "$PACKER_LOG_PATH" || true' ERR
+
+          echo "Packer logs will be saved to: $PACKER_LOG_PATH"
+
+          attempts=0
+          until [ $attempts -ge 2 ]
+          do
+            attempts=$((attempts+1))
+            echo "Attempt $attempts of 2..."
+            if packer build \
+              -timestamp-ui -color=false \
+              -var "aws_region=${{ vars.AWS_REGION }}" \
+              -var "base_ami=${{ vars.BASE_AMI }}" \
+              -var "version_tag=${{ github.ref_name }}" \
+              -var "CODEARTIFACT_DOMAIN=${{ vars.CODEARTIFACT_DOMAIN }}" \
+              -var "CODEARTIFACT_OWNER=${{ vars.AWS_ACCOUNT_ID }}" \
+              -var "CODEARTIFACT_REGION=${{ vars.AWS_REGION }}" \
+              -var "CODEARTIFACT_REPO=${{ vars.CODEARTIFACT_REPO }}" \
+              -var "CODEARTIFACT_PACKAGE=${{ vars.CODEARTIFACT_PACKAGE }}" \
+              -var "CODEARTIFACT_TOKEN=${CODEARTIFACT_AUTH_TOKEN}" \
+              golden-ami.pkr.hcl; then
+              echo "Packer build succeeded on attempt $attempts"
+              break
+            fi
+
+            if [ $attempts -lt 2 ]; then
+              echo "Packer build failed (attempt $attempts). Retrying in 30s..."
+              sleep 30
+            else
+              echo "Packer build failed after $attempts attempts."
+              exit 1
+            fi
+          done
+
+      - name: Upload Packer logs (on failure)
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: packer-logs
+          path: ${{ runner.temp }}/packer.log
+          retention-days: 7
+
+      - name: Ensure manifest exists
+        run: |
+          if [ ! -s manifest.json ]; then
+            echo "::error::Packer did not produce manifest.json. See packer log artifact."
+            exit 1
+          fi
+
+      - name: Extract AMI ID from manifest
+        id: ami
+        run: |
+          AMI_ID=$(jq -r '.builds[0].artifact_id' manifest.json | cut -d':' -f2)
+          echo "AMI_ID=$AMI_ID" >> "$GITHUB_ENV"
+          echo "ami-id=$AMI_ID" >> "$GITHUB_OUTPUT"
+
+      - name: Publish AMI ID to SSM Parameter Store
+        run: |
+          aws ssm put-parameter \
+            --name "${{ vars.SSM_PARAMETER_NAME }}" \
+            --value "$AMI_ID" \
+            --type "String" \
+            --overwrite
+
+      - name: Tag SSM Parameter with Git tag
+        run: |
+          aws ssm add-tags-to-resource \
+            --resource-type "Parameter" \
+            --resource-id "${{ vars.SSM_PARAMETER_NAME }}" \
+            --tags Key=GitTag,Value="${{ github.ref_name }}"
+
+      - name: Trigger ASG Instance Refresh
+        run: |
+          aws autoscaling start-instance-refresh \
+            --auto-scaling-group-name "${{ vars.ASG_NAME }}" \
+            --preferences '{"MinHealthyPercentage":100,"InstanceWarmup":300}'

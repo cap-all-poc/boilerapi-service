@@ -98,4 +98,3 @@ sudo systemctl daemon-reload
 ```bash
 sudo -u boilerapi /opt/boilerapi-service/.venv/bin/pip uninstall -y boilerapi-service
 ```
-

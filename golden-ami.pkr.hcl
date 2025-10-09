@@ -67,10 +67,7 @@ build {
       "sudo -u boilerapi /opt/boilerapi-service/.venv/bin/pip install --upgrade pip",
 
       # Install from CodeArtifact (Basic Auth: user 'aws', password = token)
-      "sudo -u boilerapi /opt/boilerapi-service/.venv/bin/pip install " ++
-      "--index-url https://aws:${var.CODEARTIFACT_TOKEN}@" ++
-      "${var.CODEARTIFACT_DOMAIN}-${var.CODEARTIFACT_OWNER}.d.codeartifact.${var.CODEARTIFACT_REGION}.amazonaws.com/pypi/${var.CODEARTIFACT_REPO}/simple/ " ++
-      "${var.CODEARTIFACT_PACKAGE}",
+      "sudo -u boilerapi /opt/boilerapi-service/.venv/bin/pip install --index-url https://aws:${var.CODEARTIFACT_TOKEN}@${var.CODEARTIFACT_DOMAIN}-${var.CODEARTIFACT_OWNER}.d.codeartifact.${var.CODEARTIFACT_REGION}.amazonaws.com/pypi/${var.CODEARTIFACT_REPO}/simple/ ${var.CODEARTIFACT_PACKAGE}",
 
       # Run package-provided installer (assumes it installs systemd unit)
       "sudo /opt/boilerapi-service/.venv/bin/boilerapi-install-systemd"

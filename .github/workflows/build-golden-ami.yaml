@@ -62,8 +62,7 @@ jobs:
             --format pypi --query repositoryEndpoint --output text)
 
           # Make available to subsequent steps
-          BASE_SIMPLE="${ENDPOINT%/}/simple/"
-          echo "$BASE_SIMPLE" >> "$GITHUB_ENV"
+          echo "BASE_SIMPLE=${ENDPOINT%/}/simple/" >> "$GITHUB_ENV"
 
       # Setup Required Python version
       - name: Set up Python

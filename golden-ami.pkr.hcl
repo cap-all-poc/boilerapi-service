@@ -34,6 +34,15 @@ variable "CODEARTIFACT_TOKEN" {
   type = string
 }
 
+packer {
+  required_plugins {
+    amazon = {
+      version = ">= 1.0.0"
+      source  = "github.com/hashicorp/amazon"
+    }
+  }
+}
+
 source "amazon-ebs" "golden_ami" {
   region          = var.aws_region
   instance_type   = "t3.micro"

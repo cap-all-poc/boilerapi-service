@@ -35,4 +35,5 @@ boilerapi-install-systemd = "app.deploy.systemd:main"
 packages = ["app"]
 
 [tool.setuptools.package-data]
-app = ["deploy/systemd/boilerapi-service.service"]
+"app.deploy.systemd" = ["boilerapi-service.service"]
+

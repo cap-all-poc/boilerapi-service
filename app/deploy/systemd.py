@@ -13,9 +13,9 @@ def main():
         print("Windows detected: systemd not available. No changes applied.")
         return
 
-    if not is_root_unix():
-        print("Please run this command with sudo (root privileges).")
-        sys.exit(1)
+    #if not is_root_unix():
+    #    print("Please run this command with sudo (root privileges).")
+    #    sys.exit(1)
 
     # read template from installed package data
     src = (files("app.deploy.systemd") / UNIT).read_text()

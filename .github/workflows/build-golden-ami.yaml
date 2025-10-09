@@ -45,7 +45,7 @@ jobs:
             --domain-owner "${{ vars.AWS_ACCOUNT_ID }}" \
             --query authorizationToken --output text)
 
-          # Mask it so it won't show in logs
+          # Mask token so it won't show in logs
           echo "::add-mask::$TOKEN"
 
           # Make available to subsequent steps

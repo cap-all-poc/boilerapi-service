@@ -12,6 +12,9 @@ jobs:
     name: Build and Register AMI
     runs-on: ubuntu-latest
     environment: development
+    outputs:
+      ami-id: ${{ steps.ami.outputs.ami-id }}
+
 
     steps:
       - name: Checkout source
@@ -174,12 +177,20 @@ jobs:
     runs-on: ubuntu-latest
     environment: development
     needs: build-ami
+    env:
+      AMI_ID: ${{ needs.build-ami.outputs.ami-id }}
 
     steps:
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/golden-ami-builder-role
+          aws-region: ${{ vars.AWS_REGION }}
+
       - name: Publish AMI ID to SSM Parameter Store
+        shell: bash
         run: |
           set -euo pipefail
-
           aws ssm put-parameter \
             --name "${{ vars.SSM_PARAMETER_NAME }}" \
             --value "$AMI_ID" \
@@ -187,26 +198,34 @@ jobs:
             --overwrite
 
       - name: Tag SSM Parameter with Git tag
+        env:
+          PARAM: ${{ vars.SSM_PARAMETER_NAME }}
+          GIT_TAG: ${{ github.ref_name }}
+        shell: bash
         run: |
           set -euo pipefail
-
           aws ssm add-tags-to-resource \
             --resource-type "Parameter" \
             --resource-id "${{ vars.SSM_PARAMETER_NAME }}" \
-            --tags Key=GitTag,Value="${{ github.ref_name }}"
+            --tags '[{"Key":"GitTag","Value":"'"$GIT_TAG"'"}]'
 
   restart-app:
-    name: Restart Appplication with freshly baked AMI
+    name: Restart Appplication
     runs-on: ubuntu-latest
     environment: development
     needs: publish-ami
 
     steps:
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/golden-ami-builder-role
+          aws-region: ${{ vars.AWS_REGION }}
 
       - name: Trigger ASG Instance Refresh
+        shell: bash
         run: |
           set -euo pipefail
-          
           aws autoscaling start-instance-refresh \
             --auto-scaling-group-name "${{ vars.ASG_NAME }}" \
             --preferences '{"MinHealthyPercentage":100,"InstanceWarmup":300}'

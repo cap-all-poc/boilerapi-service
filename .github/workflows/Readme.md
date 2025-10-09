@@ -126,6 +126,7 @@ cat > golden-ami-builder-policy.json <<EOF
       "Action": [
         "ec2:RunInstances",
         "ec2:TerminateInstances",
+        "ec2:StopInstances",
         "ec2:CreateImage",
         "ec2:RegisterImage",
         "ec2:CreateTags",

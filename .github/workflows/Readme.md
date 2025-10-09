@@ -150,7 +150,8 @@ cat > golden-ami-builder-policy.json <<EOF
             "Action": [
                 "codeartifact:GetAuthorizationToken",
                 "codeartifact:GetRepositoryEndpoint",
-                "codeartifact:ReadFromRepository"
+                "codeartifact:ReadFromRepository",
+                "codeartifact:ListPackageVersions"
             ],
             "Resource": "*"
     },

@@ -140,7 +140,8 @@ cat > golden-ami-builder-policy.json <<EOF
         "ec2:AttachVolume",
         "ec2:DeleteVolume",
         "ec2:DetachVolume",
-        "ec2:ModifyImageAttribute"
+        "ec2:ModifyImageAttribute",
+        "ec2:DescribeRegions"
       ],
       "Resource": "*"
     },

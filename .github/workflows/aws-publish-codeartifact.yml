@@ -40,7 +40,7 @@ jobs:
       - name: Download Dependencies from requirements.txt
         run: |
           mkdir deps
-          python install -r requirements.txt --dest deps/
+          python -m pip download -r requirements.txt --dest deps/
 
       - name: Install Twine and login to CodeArtifact
         run: |

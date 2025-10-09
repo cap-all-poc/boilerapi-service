@@ -56,7 +56,8 @@ build {
     inline = [
       "sudo yum update -y",
       # venv is built into Python3; install pip and tools
-      "sudo yum install -y python3 python3-pip git",
+      "sudo yum install -y python3.13 python3.13-pip git",
+      "sudo alternatives --install /usr/bin/python3 python3 /usr/bin/python3.13 2"
       "sudo useradd --system --no-create-home --shell /sbin/nologin boilerapi || true",
       "sudo mkdir -p /opt/boilerapi-service",
       "sudo chown -R boilerapi:boilerapi /opt/boilerapi-service",

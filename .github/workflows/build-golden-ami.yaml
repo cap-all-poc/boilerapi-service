@@ -51,20 +51,48 @@ jobs:
           # Make available to subsequent steps
           echo "CODEARTIFACT_AUTH_TOKEN=$TOKEN" >> "$GITHUB_ENV"
 
-      # Use authenticated index URL directly
-      - name: Install Python package from CodeArtifact
+      - name: Get CodeArtifact endpoint
+        id: codeartifact-endpoint
         shell: bash
         run: |
-          python3 -m venv venv
-          source venv/bin/activate
-          pip install --upgrade pip
-          pip install --index-url "https://aws:${CODEARTIFACT_AUTH_TOKEN}@${{ vars.CODEARTIFACT_DOMAIN }}-${{ vars.AWS_ACCOUNT_ID }}.d.codeartifact.${{ vars.AWS_REGION }}.amazonaws.com/pypi/${{ vars.CODEARTIFACT_REPO }}/simple/" \
-            "${{ vars.CODEARTIFACT_PACKAGE }}"
+          ENDPOINT=$(aws codeartifact get-repository-endpoint \
+            --domain "${{ vars.CODEARTIFACT_DOMAIN }}" \
+            --domain-owner "${{ vars.AWS_ACCOUNT_ID }}" \
+            --repository "${{ vars.CODEARTIFACT_REPO }}" \
+            --format pypi --query repositoryEndpoint --output text)
+
+          # Make available to subsequent steps
+          BASE_SIMPLE="${ENDPOINT%/}/simple/"
+          echo "$BASE_SIMPLE" >> "$GITHUB_ENV"
+
+      # Setup Required Python version
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with: 
+            python-version: '3.13' 
+              
+      # Use authenticated index URL directly
+      - name: Install Python packages from CodeArtifact
+        shell: bash
+        run: |
+          set -euo pipefail
+          
+          LATEST=$(aws codeartifact list-package-versions \
+            --domain "${{ vars.CODEARTIFACT_DOMAIN }}" \
+            --domain-owner "${{ vars.AWS_ACCOUNT_ID }}" \
+            --repository "${{ vars.CODEARTIFACT_REPO }}" \
+            --format pypi --package "${{ vars.CODEARTIFACT_PACKAGE }}" \
+            --query 'versions[?status==`Published`].version' \
+            --output text | tr '\t' '\n' | sort -Vr | head -n1)
+         
+          python -m pip install --upgrade pip
+          python -m pip install --no-cache-dir \
+            --index-url "https://aws:${CODEARTIFACT_AUTH_TOKEN}@${BASE_SIMPLE#https://}" \
+            "${{ vars.CODEARTIFACT_PACKAGE }}==${LATEST}"
 
       - name: Packer init
         run: packer init .
 
-      
       - name: Validate Packer template
         run: |
           packer fmt -check -diff .

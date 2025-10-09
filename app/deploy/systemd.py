@@ -13,6 +13,7 @@ def main():
     for f in files("app.deploy.systemd").iterdir():
         print("-", f)
 
+
     # Check if windows is being used 
     if os.name == "nt":
         print("Windows detected: systemd not available. No changes applied.")

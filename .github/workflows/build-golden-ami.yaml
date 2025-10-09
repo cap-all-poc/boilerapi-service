@@ -52,7 +52,7 @@ jobs:
           echo "CODEARTIFACT_AUTH_TOKEN=$TOKEN" >> "$GITHUB_ENV"
 
       # Use authenticated index URL directly
-      - name: (Optional) Install Python package from CodeArtifact
+      - name: Install Python package from CodeArtifact
         shell: bash
         run: |
           python3 -m venv venv

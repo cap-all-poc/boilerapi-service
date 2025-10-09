@@ -1,9 +1,10 @@
 name: Build Golden AMI
 
 on:
-  push:
-    tags:
-      - 'v*'
+  workflow_run:
+    workflows: ["Publish to AWS CodeArtifact"]
+    types:
+      - completed
 
 permissions:
   id-token: write
@@ -11,6 +12,8 @@ permissions:
 
 jobs:
   build-ami:
+    # Only run if most recent aws-publish-codeartifact workflow was successful
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     name: Build and Publish AMI
     runs-on: ubuntu-latest
     environment: development

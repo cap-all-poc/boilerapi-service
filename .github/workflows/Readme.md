@@ -141,7 +141,21 @@ cat > golden-ami-builder-policy.json <<EOF
         "ec2:DeleteVolume",
         "ec2:DetachVolume",
         "ec2:ModifyImageAttribute",
-        "ec2:DescribeRegions"
+        "ec2:DescribeRegions",
+        "ec2:CreateKeyPair",
+        "ec2:DeleteKeyPair",
+        "ec2:DescribeKeyPairs",
+        "ec2:DescribeNetworkInterfaces",
+        "ec2:CreateNetworkInterface",
+        "ec2:DeleteNetworkInterface",
+        "ec2:AttachNetworkInterface",
+        "ec2:DetachNetworkInterface",
+        "iam:PassRole",
+        "ec2:CreateSecurityGroup",
+        "ec2:AuthorizeSecurityGroupIngress",
+        "ec2:AuthorizeSecurityGroupEgress",
+        "ec2:DeleteSecurityGroup",
+        "ec2:DescribeSecurityGroups"
       ],
       "Resource": "*"
     },

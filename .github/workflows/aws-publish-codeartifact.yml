@@ -47,9 +47,9 @@ jobs:
           python -m pip install twine
           aws codeartifact login \
             --tool twine \
-            --domain "${{ vars.CA_DOMAIN }}" \
+            --domain "${{ vars.CODEARTIFACT_DOMAIN }}" \
             --domain-owner "${{ vars.AWS_ACCOUNT_ID }}" \
-            --repository "${{ vars.CA_REPO }}"
+            --repository "${{ vars.CODEARTIFACT_REPO }}"
 
       
       - name: Upload dependencies to CodeArtifact

@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   build-ami:
-    name: Build and Publish AMI
+    name: Build and Register AMI
     runs-on: ubuntu-latest
     environment: development
 
@@ -169,9 +169,17 @@ jobs:
           AMI_ID=$(jq -r '.builds[0].artifact_id' manifest.json | cut -d':' -f2)
           echo "AMI_ID=$AMI_ID" >> "$GITHUB_ENV"
           echo "ami-id=$AMI_ID" >> "$GITHUB_OUTPUT"
+  publish-ami:
+    name: Publish AMI ID To SSM
+    runs-on: ubuntu-latest
+    environment: development
+    needs: build-ami
 
+    steps:
       - name: Publish AMI ID to SSM Parameter Store
         run: |
+          set -euo pipefail
+
           aws ssm put-parameter \
             --name "${{ vars.SSM_PARAMETER_NAME }}" \
             --value "$AMI_ID" \
@@ -180,13 +188,25 @@ jobs:
 
       - name: Tag SSM Parameter with Git tag
         run: |
+          set -euo pipefail
+
           aws ssm add-tags-to-resource \
             --resource-type "Parameter" \
             --resource-id "${{ vars.SSM_PARAMETER_NAME }}" \
             --tags Key=GitTag,Value="${{ github.ref_name }}"
 
+  restart-app:
+    name: Restart Appplication with freshly baked AMI
+    runs-on: ubuntu-latest
+    environment: development
+    needs: publish-ami
+
+    steps:
+
       - name: Trigger ASG Instance Refresh
         run: |
+          set -euo pipefail
+          
           aws autoscaling start-instance-refresh \
             --auto-scaling-group-name "${{ vars.ASG_NAME }}" \
             --preferences '{"MinHealthyPercentage":100,"InstanceWarmup":300}'

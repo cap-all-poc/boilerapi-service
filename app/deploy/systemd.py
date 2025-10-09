@@ -9,6 +9,11 @@ def is_root_unix() -> bool:
     return os.name != "nt" and hasattr(os, "geteuid") and os.geteuid() == 0  # type: ignore[attr-defined]
 
 def main():
+    print("Resolved files in app.deploy.systemd:")
+    for f in files("app.deploy.systemd").iterdir():
+        print("-", f)
+
+    # Check if windows is being used 
     if os.name == "nt":
         print("Windows detected: systemd not available. No changes applied.")
         return

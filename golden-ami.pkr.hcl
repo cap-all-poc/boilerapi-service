@@ -75,6 +75,9 @@ build {
       "sudo -u boilerapi python3 -m venv /opt/boilerapi-service/.venv",
       "sudo -u boilerapi /opt/boilerapi-service/.venv/bin/pip install --upgrade pip",
 
+      # Debug printing CodeArtifact package
+      "echo 'Installing package: ${var.CODEARTIFACT_PACKAGE}'",
+
       # Install from CodeArtifact (Basic Auth: user 'aws', password = token)
       "sudo -u boilerapi /opt/boilerapi-service/.venv/bin/pip install --index-url https://aws:${var.CODEARTIFACT_TOKEN}@${var.CODEARTIFACT_DOMAIN}-${var.CODEARTIFACT_OWNER}.d.codeartifact.${var.CODEARTIFACT_REGION}.amazonaws.com/pypi/${var.CODEARTIFACT_REPO}/simple/ ${var.CODEARTIFACT_PACKAGE}",
 

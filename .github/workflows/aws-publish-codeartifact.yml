@@ -4,7 +4,6 @@ on:
   push:
     tags:
       - "v*"  # Trigger on version tags
-  workflow_dispatch:
 
 permissions:
   id-token: write        # Required for OIDC

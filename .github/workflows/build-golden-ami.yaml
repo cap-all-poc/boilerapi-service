@@ -1,10 +1,7 @@
 name: Build Golden AMI
 
 on:
-  workflow_run:
-    workflows: ["Publish to AWS CodeArtifact"]
-    types:
-      - completed
+  workflow_call:
 
 permissions:
   id-token: write

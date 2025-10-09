@@ -113,6 +113,14 @@ cat > golden-ami-builder-policy.json <<EOF
   "Version": "2012-10-17",
   "Statement": [
     {
+      "Sid": "STSPermissions",
+      "Effect": "Allow",
+      "Action": [
+        "sts:GetServiceBearerToken"
+      ],
+      "Resource": "*"
+    },
+    {
       "Sid": "PackerEC2Permissions",
       "Effect": "Allow",
       "Action": [

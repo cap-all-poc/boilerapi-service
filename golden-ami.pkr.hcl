@@ -82,7 +82,7 @@ build {
       "sudo -u boilerapi /opt/boilerapi-service/.venv/bin/pip install --index-url https://aws:${var.CODEARTIFACT_TOKEN}@${var.CODEARTIFACT_DOMAIN}-${var.CODEARTIFACT_OWNER}.d.codeartifact.${var.CODEARTIFACT_REGION}.amazonaws.com/pypi/${var.CODEARTIFACT_REPO}/simple/ ${var.CODEARTIFACT_PACKAGE}",
 
       # Run package-provided installer (assumes it installs systemd unit)
-      "sudo -u boilerapi /opt/boilerapi-service/.venv/bin/boilerapi-install-systemd"
+      "sudo /opt/boilerapi-service/.venv/bin/boilerapi-install-systemd"
     ]
   }
 

@@ -29,10 +29,10 @@ dependencies = [
 ]
 
 [project.scripts]
-boilerapi-install-systemd = "app.deploy.systemd:main"
+boilerapi-install-systemd = "app.deploy.systemd_install:main"
 
 [tool.setuptools]
-packages = ["app"]
+packages = ["app", "app.deploy", "app.deploy.systemd"]
 include-package-data = true
 
 [tool.setuptools.package-data]

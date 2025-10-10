@@ -180,7 +180,8 @@ cat > golden-ami-builder-policy.json <<EOF
         "ssm:DeleteParameter",
         "ssm:AddTagsToResource",
         "ssm:ListTagsForResource",
-        "ssm:RemoveTagsFromResource"
+        "ssm:RemoveTagsFromResource",
+        "ssm:GetParameters"
       ],
       "Resource": "arn:aws:ssm:*:*:parameter/YOUR_PARAMETER_NAME"
     },

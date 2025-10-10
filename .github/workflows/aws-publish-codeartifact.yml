@@ -71,7 +71,8 @@ jobs:
     uses: ./.github/workflows/build-golden-ami.yaml
     permissions:
       id-token: write
-      contents: read
+      contents: write
+      actions: read
     with:
       artifact_run_id: ${{ github.run_id }}
       artifact_name: wheel

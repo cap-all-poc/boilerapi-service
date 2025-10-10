@@ -2,6 +2,17 @@ name: Publish Release Artifact
 
 on:
   workflow_call:
+    inputs:
+      run-id:
+        description: "Run ID of the workflow that produced the artifact"
+        required: true
+        type: string
+      artifact-name:
+        description: "Name of the artifact to download"
+        required: false
+        default: wheel
+        type: string
+
 
 permissions:
   contents: write
@@ -13,8 +24,9 @@ jobs:
       - name: Download wheel artifact
         uses: actions/download-artifact@v4
         with:
-          name: wheel
+          name: ${{ inputs.artifact-name }}
           path: dist
+          run-id: ${{ inputs.run-id }}
 
       - name: Create GitHub Release and upload wheel
         uses: softprops/action-gh-release@v2

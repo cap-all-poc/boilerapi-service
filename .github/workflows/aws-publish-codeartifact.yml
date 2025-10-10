@@ -69,3 +69,6 @@ jobs:
   trigger-golden-ami:
     needs: publish
     uses: ./.github/workflows/build-golden-ami.yaml
+    with:
+      artifact_run_id: ${{ github.run_id }}
+      artifact_name: wheel

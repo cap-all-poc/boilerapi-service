@@ -2,11 +2,21 @@ name: Build Golden AMI
 
 on:
   workflow_call:
+    inputs:
+      artifact_run_id:
+        description: "Run ID of wheel artifact producer (aws-publish-codeartifact.yml)"
+        required: true
+        type: string
+      artifact_name:
+        description: "Artifact name to release"
+        required: false
+        default: wheel
+        type: string
 
 permissions:
   id-token: write
-  contents: read
-
+  contents: write
+  actions: read
 
 jobs:
   build-ami:
@@ -234,3 +244,6 @@ jobs:
   publish-release:
     needs: restart-app
     uses: ./.github/workflows/release-artifact.yml
+    with:
+      run-id: ${{ inputs.artifact_run_id }}
+      artifact-name: ${{ inputs.artifact_name }}

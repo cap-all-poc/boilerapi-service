@@ -7,6 +7,7 @@ permissions:
   id-token: write
   contents: read
 
+
 jobs:
   build-ami:
     name: Build and Register AMI
@@ -14,7 +15,6 @@ jobs:
     environment: development
     outputs:
       ami-id: ${{ steps.ami.outputs.ami-id }}
-
 
     steps:
       - name: Checkout source
@@ -172,6 +172,7 @@ jobs:
           AMI_ID=$(jq -r '.builds[0].artifact_id' manifest.json | cut -d':' -f2)
           echo "AMI_ID=$AMI_ID" >> "$GITHUB_ENV"
           echo "ami-id=$AMI_ID" >> "$GITHUB_OUTPUT"
+
   publish-ami:
     name: Publish AMI ID To SSM
     runs-on: ubuntu-latest
@@ -229,3 +230,7 @@ jobs:
           aws autoscaling start-instance-refresh \
             --auto-scaling-group-name "${{ vars.ASG_NAME }}" \
             --preferences '{"MinHealthyPercentage":100,"InstanceWarmup":300}'
+
+  publish-release:
+    needs: restart-app
+    uses: ./.github/workflows/release-artifact.yml

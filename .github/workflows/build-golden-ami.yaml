@@ -15,8 +15,7 @@ on:
 
 permissions:
   id-token: write
-  contents: write
-  actions: read
+  contents: read
 
 jobs:
   build-ami:
@@ -244,6 +243,9 @@ jobs:
   publish-release:
     needs: restart-app
     uses: ./.github/workflows/release-artifact.yml
+    permissions:
+      contents: write   
+      actions: read     
     with:
       run-id: ${{ inputs.artifact_run_id }}
       artifact-name: ${{ inputs.artifact_name }}

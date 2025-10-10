@@ -13,9 +13,9 @@ on:
         default: wheel
         type: string
 
-
 permissions:
   contents: write
+  actions: read
     
 jobs:
   release:

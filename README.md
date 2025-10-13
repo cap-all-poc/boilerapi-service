@@ -243,6 +243,7 @@ cat > golden-ami-builder-policy.json <<EOF
         "ec2:DeleteVolume",
         "ec2:DetachVolume",
         "ec2:ModifyImageAttribute",
+        "ec2:DescribeImageAttribute",
         "ec2:DescribeRegions",
         "ec2:CreateKeyPair",
         "ec2:DeleteKeyPair",
@@ -257,7 +258,8 @@ cat > golden-ami-builder-policy.json <<EOF
         "ec2:AuthorizeSecurityGroupIngress",
         "ec2:AuthorizeSecurityGroupEgress",
         "ec2:DeleteSecurityGroup",
-        "ec2:DescribeSecurityGroups"
+        "ec2:DescribeSecurityGroups",
+        "ec2:CopyImage"
       ],
       "Resource": "*"
     },

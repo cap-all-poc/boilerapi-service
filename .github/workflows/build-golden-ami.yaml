@@ -183,6 +183,37 @@ jobs:
           echo "AMI_ID=$AMI_ID" >> "$GITHUB_ENV"
           echo "ami-id=$AMI_ID" >> "$GITHUB_OUTPUT"
 
+  copy-ami:
+    name: Copy AMI to Secondary Region
+    runs-on: ubuntu-latest
+    needs: build-ami
+    outputs:
+      copied-ami-id: ${{ steps.copy.outputs.copied-ami-id }}
+    env:
+      SOURCE_AMI_ID: ${{ needs.build-ami.outputs.ami-id }}
+    steps:
+      - name: Configure AWS credentials for secondary region
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/golden-ami-builder-role
+          aws-region: ${{ vars.AWS_SECONDARY_REGION }}
+
+      - name: Copy AMI
+        id: copy
+        run: |
+          COPY_IMAGE_ID=$(aws ec2 copy-image \
+            --source-region ${{ vars.AWS_REGION }} \
+            --source-image-id "$SOURCE_AMI_ID" \
+            --name "Copied-${{ github.ref_name }}" \
+            --query 'ImageId' --output text)
+
+          echo "Copied AMI ID: $COPY_IMAGE_ID"
+          echo "copied-ami-id=$COPY_IMAGE_ID" >> "$GITHUB_OUTPUT"
+
+      - name: Wait for AMI to become available
+        run: |
+          aws ec2 wait image-available --image-ids ${{ steps.copy.outputs.copied-ami-id }}
+
   publish-ami:
     name: Publish AMI ID To SSM
     runs-on: ubuntu-latest

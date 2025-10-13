@@ -199,7 +199,7 @@ jobs:
           aws-region: ${{ vars.AWS_SECONDARY_REGION }}
 
       - name: Copy AMI
-        id: copy
+        id: copy-ami
         run: |
           COPY_IMAGE_ID=$(aws ec2 copy-image \
             --source-region ${{ vars.AWS_REGION }} \
@@ -218,7 +218,7 @@ jobs:
     name: Publish AMI ID To SSM
     runs-on: ubuntu-latest
     environment: development
-    needs: build-ami
+    needs: copy-ami
     env:
       AMI_ID: ${{ needs.build-ami.outputs.ami-id }}
 

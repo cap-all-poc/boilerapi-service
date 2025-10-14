@@ -189,7 +189,7 @@ jobs:
     needs: build-ami
     environment: development
     outputs:
-      copied-ami-id: ${{ steps.copy.outputs.copied-ami-id }}
+      copied-ami-id: ${{ steps.copy-ami.outputs.copied-ami-id }}
     env:
       SOURCE_AMI_ID: ${{ needs.build-ami.outputs.ami-id }}
     steps:
@@ -213,13 +213,15 @@ jobs:
 
       - name: Wait for AMI to become available
         run: |
-          aws ec2 wait image-available --image-ids ${{ steps.copy.outputs.copied-ami-id }}
+          aws ec2 wait image-available --image-ids ${{ steps.copy-ami.outputs.copied-ami-id }}
 
   publish-ami:
     name: Publish AMI ID To SSM
     runs-on: ubuntu-latest
     environment: development
-    needs: copy-ami
+    needs:
+      - build-ami
+      - copy-ami
     env:
       AMI_ID: ${{ needs.build-ami.outputs.ami-id }}
       COPIED_AMI_ID: ${{ needs.copy-ami.outputs.copied-ami-id }}

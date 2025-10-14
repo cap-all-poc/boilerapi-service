@@ -187,6 +187,7 @@ jobs:
     name: Copy AMI to Secondary Region
     runs-on: ubuntu-latest
     needs: build-ami
+    environment: development
     outputs:
       copied-ami-id: ${{ steps.copy.outputs.copied-ami-id }}
     env:
@@ -221,6 +222,7 @@ jobs:
     needs: copy-ami
     env:
       AMI_ID: ${{ needs.build-ami.outputs.ami-id }}
+      COPIED_AMI_ID: ${{ needs.copy-ami.outputs.copied-ami-id }}
 
     steps:
       - name: Configure AWS credentials (OIDC)
@@ -229,7 +231,7 @@ jobs:
           role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/golden-ami-builder-role
           aws-region: ${{ vars.AWS_REGION }}
 
-      - name: Publish AMI ID to SSM Parameter Store
+      - name: Publish AMI ID to SSM Parameter Store (Primary Region)
         shell: bash
         run: |
           set -euo pipefail
@@ -239,7 +241,7 @@ jobs:
             --type "String" \
             --overwrite
 
-      - name: Tag SSM Parameter with Git tag
+      - name: Tag SSM Parameter with Git tag (Primary Region)
         env:
           PARAM: ${{ vars.SSM_PARAMETER_NAME }}
           GIT_TAG: ${{ github.ref_name }}
@@ -248,7 +250,35 @@ jobs:
           set -euo pipefail
           aws ssm add-tags-to-resource \
             --resource-type "Parameter" \
-            --resource-id "${{ vars.SSM_PARAMETER_NAME }}" \
+            --resource-id "$PARAM" \
+            --tags '[{"Key":"GitTag","Value":"'"$GIT_TAG"'"}]'
+
+      - name: Configure AWS credentials (OIDC) for secondary region
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/golden-ami-builder-role
+          aws-region: ${{ vars.AWS_SECONDARY_REGION }}
+
+      - name: Publish AMI ID to SSM Parameter Store (Secondary Region)
+        shell: bash
+        run: |
+          set -euo pipefail
+          aws ssm put-parameter \
+            --name "${{ vars.SSM_PARAMETER_NAME }}" \
+            --value "$COPIED_AMI_ID" \
+            --type "String" \
+            --overwrite
+
+      - name: Tag SSM Parameter with Git tag (Secondary Region)
+        env:
+          PARAM: ${{ vars.SSM_PARAMETER_NAME }}
+          GIT_TAG: ${{ github.ref_name }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          aws ssm add-tags-to-resource \
+            --resource-type "Parameter" \
+            --resource-id "$PARAM" \
             --tags '[{"Key":"GitTag","Value":"'"$GIT_TAG"'"}]'
 
   restart-app:
@@ -265,6 +295,20 @@ jobs:
           aws-region: ${{ vars.AWS_REGION }}
 
       - name: Trigger ASG Instance Refresh
+        shell: bash
+        run: |
+          set -euo pipefail
+          aws autoscaling start-instance-refresh \
+            --auto-scaling-group-name "${{ vars.ASG_NAME }}" \
+            --preferences '{"MinHealthyPercentage":100,"InstanceWarmup":300}'
+
+      - name: Configure AWS credentials (OIDC) for secondary region
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/golden-ami-builder-role
+          aws-region: ${{ vars.AWS_SECONDARY_REGION }}
+      
+      - name: Trigger ASG Instance Refresh (Secondary Region)
         shell: bash
         run: |
           set -euo pipefail
